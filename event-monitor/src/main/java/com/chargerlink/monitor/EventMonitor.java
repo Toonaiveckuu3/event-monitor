@@ -3,6 +3,7 @@ package com.chargerlink.monitor;
 
 import com.chargerlink.monitor.event.MonitorEvent;
 
+import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -116,7 +117,18 @@ public class EventMonitor<T extends MonitorEvent> implements IListenerManager, I
      */
     @Override
     public void removeListener(MonitorEventListener listener) {
-        listenerMap.remove(listener.getEventFlag());
+        CopyOnWriteArrayList<MonitorEventListener> listeners = listenerMap.get(listener.getEventFlag());
+        if (listeners == null) {
+            return;
+        }
+        for (Iterator<MonitorEventListener> iterator = listeners.iterator(); iterator.hasNext(); ) {
+            if (listener.equals(iterator.next())) {
+                iterator.remove();
+            }
+        }
+        if (listeners.size() == 0) {
+            listenerMap.remove(listener.getEventFlag());
+        }
     }
 
     /**
@@ -154,6 +166,11 @@ public class EventMonitor<T extends MonitorEvent> implements IListenerManager, I
         }
     }
 
+    /**
+     * 新增监听器
+     *
+     * @param listener
+     */
     private void putListener(MonitorEventListener listener) {
         CopyOnWriteArrayList<MonitorEventListener> listeners = listenerMap.get(listener.getEventFlag());
         if (listeners == null) {
@@ -161,7 +178,7 @@ public class EventMonitor<T extends MonitorEvent> implements IListenerManager, I
         }
         listeners.add(listener);
         listenerMap.put(listener.getEventFlag(), listeners);
-        log.info("新增监听EventFlag:[{}],监听总数[{}]", listener.getEventFlag(), listenerMap.size());
+        log.info("新增监听EventFlag:[{}],监听总数[{}]", listener.getEventFlag(), listeners.size());
     }
 
     public void setCorePoolSize(Integer corePoolSize) {
