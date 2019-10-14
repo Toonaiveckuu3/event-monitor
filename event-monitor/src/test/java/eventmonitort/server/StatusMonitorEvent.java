@@ -2,13 +2,10 @@ package eventmonitort.server;
 
 import com.chargerlink.monitor.event.MonitorEvent;
 
-import lombok.Data;
-
 /**
  * @Author: ZhangHeng zhanghenggoog@gmail.com
  * @Date: Created on 0:21 2019/1/31.
  */
-@Data
 public class StatusMonitorEvent extends MonitorEvent {
 
     boolean success;
@@ -22,5 +19,16 @@ public class StatusMonitorEvent extends MonitorEvent {
         super(eventFlag);
     }
 
+    public StatusMonitorEvent(String eventFlag, boolean success) {
+        super(eventFlag);
+        this.success = success;
+    }
 
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
 }

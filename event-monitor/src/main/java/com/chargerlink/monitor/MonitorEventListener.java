@@ -3,6 +3,7 @@ package com.chargerlink.monitor;
 
 import com.chargerlink.monitor.event.MonitorEvent;
 
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -22,12 +23,23 @@ public abstract class MonitorEventListener<T extends MonitorEvent> {
     final CountDownLatch countDownLatch = new CountDownLatch(1);
 
     /**
+     * 是否执行的标志
+     */
+    private boolean isRemoved = false;
+
+    /**
+     * 监听标记
+     */
+    private String listenerId;
+
+    /**
      * 初始化监听对象
      *
      * @param monitorEvent
      */
     public MonitorEventListener(T monitorEvent) {
         this.monitorEvent = monitorEvent;
+        this.listenerId = UUID.randomUUID().toString();
     }
 
     /**
@@ -42,7 +54,7 @@ public abstract class MonitorEventListener<T extends MonitorEvent> {
      *
      * @param monitorEvent
      */
-    protected void timeOutCallBack(T monitorEvent){
+    protected void timeOutCallBack(T monitorEvent) {
 
     }
 
@@ -51,7 +63,7 @@ public abstract class MonitorEventListener<T extends MonitorEvent> {
      *
      * @param e
      */
-    protected void failureCallBack(T monitorEvent, Exception e){
+    protected void failureCallBack(T monitorEvent, Exception e) {
 
     }
 
@@ -71,5 +83,28 @@ public abstract class MonitorEventListener<T extends MonitorEvent> {
      */
     public MonitorEvent getMonitorEvent() {
         return monitorEvent;
+    }
+
+    public boolean isRemoved() {
+        return isRemoved;
+    }
+
+    public void setRemoved(boolean removed) {
+        isRemoved = removed;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MonitorEventListener)) return false;
+
+        MonitorEventListener<?> that = (MonitorEventListener<?>) o;
+
+        return listenerId.equals(that.listenerId);
+    }
+
+    @Override
+    public int hashCode() {
+        return listenerId.hashCode();
     }
 }

@@ -33,7 +33,7 @@ public class Server {
      */
     public static void main(String[] args) {
         for (int i = 0; i < 20; i++) {
-            MonitorEvent monitorEvent = new MonitorEvent("event" + i);
+            MonitorEvent monitorEvent = new MonitorEvent("event" + i % 2);
             log.info("建立监听:{}", monitorEvent.getEventFlag());
             eventMonitor.addListener(new MonitorEventListener<MonitorEvent>(monitorEvent) {
                 @Override
@@ -53,7 +53,7 @@ public class Server {
                 protected void failureCallBack(MonitorEvent monitorEvent, Exception e) {
                     log.info(monitorEvent.getEventFlag());
                 }
-            },300000L);
+            }, 300000L);
         }
         StatusMonitorEvent mainMonitorEvent = new StatusMonitorEvent("event" + 15);
         eventMonitor.send(mainMonitorEvent);

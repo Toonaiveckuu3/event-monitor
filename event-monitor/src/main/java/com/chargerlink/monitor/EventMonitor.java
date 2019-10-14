@@ -3,7 +3,6 @@ package com.chargerlink.monitor;
 
 import com.chargerlink.monitor.event.MonitorEvent;
 
-import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -121,14 +120,12 @@ public class EventMonitor<T extends MonitorEvent> implements IListenerManager, I
         if (listeners == null) {
             return;
         }
-        for (Iterator<MonitorEventListener> iterator = listeners.iterator(); iterator.hasNext(); ) {
-            if (listener.equals(iterator.next())) {
-                iterator.remove();
-            }
-        }
-        if (listeners.size() == 0) {
+        listeners.remove(listener);
+        log.info("移除监听EventFlag:[{}],监听总数[{}]", listener.getEventFlag(), listeners.size());
+        if (listeners.isEmpty()) {
             listenerMap.remove(listener.getEventFlag());
         }
+
     }
 
     /**
@@ -154,15 +151,13 @@ public class EventMonitor<T extends MonitorEvent> implements IListenerManager, I
     private void dispatcher(MonitorEvent monitorEvent) {
         CopyOnWriteArrayList<MonitorEventListener> listeners = listenerMap.get(monitorEvent.getEventFlag());
         if (listeners != null) {
-            synchronized (listenerMap.get(monitorEvent.getEventFlag())) {
-                for (MonitorEventListener eventListener : listeners) {
-                    eventListener.callBack(monitorEvent);
-                    if (eventListener.countDownLatch.getCount() > 0) {
-                        eventListener.countDownLatch.countDown();
-                    }
+            for (MonitorEventListener eventListener : listeners) {
+                eventListener.callBack(monitorEvent);
+                if (eventListener.countDownLatch.getCount() > 0) {
+                    eventListener.countDownLatch.countDown();
                 }
-                log.info("事件EventFlag:[{}]回调完成，共[{}]次", monitorEvent.getEventFlag(), listeners.size());
             }
+            log.info("事件EventFlag=[{}]回调完成，共[{}]次", monitorEvent.getEventFlag(), listeners.size());
         }
     }
 
